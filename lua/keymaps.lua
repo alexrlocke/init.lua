@@ -49,3 +49,16 @@ vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 vim.keymap.set("n", "-", "<cmd>Oil<CR>")
+
+-- Render the current markdown file with glow in a floating terminal (q to close)
+vim.keymap.set("n", "<leader>rm", function()
+	if vim.bo.filetype ~= "markdown" then
+		vim.notify("Not a markdown file", vim.log.levels.WARN)
+		return
+	end
+	local file = vim.fn.expand("%:p")
+	local width = math.floor(vim.o.columns * 0.8)
+	Snacks.terminal({ "glow", "-p", "-w", tostring(width - 4), file }, {
+		win = { style = "float", width = 0.8, height = 0.8, border = "rounded" },
+	})
+end, { desc = "[R]ender [M]arkdown (glow)" })
