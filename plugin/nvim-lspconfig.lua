@@ -166,9 +166,13 @@ local capabilities = require("blink.cmp").get_lsp_capabilities()
 -- versions do not match, so every gem with a native extension looks broken and
 -- the server dies before it can start. Keeping these tools out of Mason lets
 -- the mise-managed binaries be found instead.
+--
+-- zls is installed by zvm alongside zig, because zls must match the zig
+-- version exactly and Mason's copy would drift out of sync.
 local mason_ignored_servers = {
 	ruby_lsp = true,
 	rubocop = true,
+	zls = true,
 }
 
 local servers = {
@@ -180,6 +184,7 @@ local servers = {
 	rubocop = {
 		cmd = { "mise", "exec", "--", "bundle", "exec", "rubocop", "--lsp" },
 	},
+	zls = {},
 	lua_ls = {
 		-- cmd = { ... },
 		-- filetypes = { ... },
