@@ -13,6 +13,11 @@ vim.pack.add({ {
 	name = "gruvbox-material",
 } })
 
+vim.pack.add({ {
+	src = "https://github.com/dracula/vim.git",
+	name = "dracula",
+} })
+
 local colorscheme_file = vim.fn.stdpath("data") .. "/colorscheme.txt"
 
 local saved = vim.fn.filereadable(colorscheme_file) == 1

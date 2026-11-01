@@ -29,6 +29,9 @@ local exclude = {
 	"**/digest*.txt",
 	"**/.node-gyp/**",
 	"**/tmp/cache/**",
+	"**/zig-pkg/*",
+	"**/.zig-cache/*",
+	"**/zig-out/*",
 }
 
 local grep_exclude = vim.list_extend(vim.deepcopy(exclude), {
