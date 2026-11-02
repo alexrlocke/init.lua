@@ -39,7 +39,9 @@ Personal Neovim configuration (Kickstart-derived, single-user). Not an app: ther
 ## Gotchas
 
 - Files use tabs for indentation and double quotes (stylua-managed; see "Formatting and linting").
-- Three colorschemes are installed (rose-pine, tokyonight, gruvbox-material). The active scheme is persisted: `plugin/colourschemes.lua` reads the saved name from `stdpath("data") .. "/colorscheme.txt"` at startup (default `tokyonight-moon`) and a `ColorScheme` autocmd writes `vim.g.colors_name` back on every switch. `CursorLineNr` is overridden with a rose-pine palette color (`#e0def4`) regardless of the active theme; the `LineNrAbove`/`LineNrBelow` overrides are commented out.
+- Four colorschemes are installed (rose-pine, tokyonight, gruvbox-material, dracula), all in one `vim.pack.add` in `plugin/colourschemes.lua`. The active scheme is persisted: the file reads the saved name from `stdpath("data") .. "/colorscheme.txt"` at startup (default `tokyonight-moon`) and a `ColorScheme` autocmd writes `vim.g.colors_name` back on every switch.
+- The same `ColorScheme` autocmd clears the backgrounds of `Normal`, `StatusLine`, `LineNr` and a few other groups so the terminal's transparency shows through, and sets `CursorLineNr` to a rose-pine color (`#e0def4`). Both are redone on every switch, because each colorscheme starts with `highlight clear`.
+- Inside [neorex](https://github.com/alexrlocke/neorex) (detected by its `--listen` socket name, `neorex-<pid>.nvim.sock`), `~/code/neorex/runtime` is added to the runtime path and its `neorex` colorscheme is loaded in place of the saved one. It uses only the terminal's 16 palette colors, so it follows Rex's theme. It's never written to `colorscheme.txt` (it doesn't exist outside neorex) the `CursorLineNr` override is skipped for it, and `StatusLine`/`StatusLineNC` keep their background so the statusline bar shows.
 - The arrow-key/`jk`-only training keymaps in `lua/keymaps.lua` deliberately block arrow keys and `<Esc>` in insert mode. Don't "fix" them.
 - Harpoon uses the `harpoon2` branch, pinned via `{ src = ..., version = 'harpoon2' }` in `vim.pack.add`.
 
