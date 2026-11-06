@@ -3,6 +3,9 @@ vim.o.relativenumber = true
 
 vim.o.showmode = false
 
+-- Hide the command line when not in use so the statusline sits on the bottom row.
+vim.o.cmdheight = 0
+
 vim.schedule(function()
 	vim.o.clipboard = "unnamedplus"
 end)
