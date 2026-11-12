@@ -19,7 +19,7 @@ Personal Neovim configuration (Kickstart-derived, single-user). Not an app: ther
 
 - Servers are declared in the `servers` table, then installed via `mason-tool-installer` and configured via the **new mason-lspconfig v2 API**: `vim.lsp.config(server_name, cfg)` per server plus `mason-lspconfig.setup { automatic_enable = true }`. Do not use the old `handlers`/`setup_handlers` pattern.
 - Capabilities come from `blink.cmp` and are force-merged into every server config.
-- **Ruby tooling runs through mise, not Mason binaries**: `ruby_lsp` uses `mise exec -- ruby-lsp` and `rubocop` uses `mise exec -- bundle exec rubocop --lsp` so the project `.ruby-version`/Gemfile is respected. Keep this pattern for any server whose version must match the project.
+- **Project-versioned tooling comes from the project's Nix dev shell, not Mason**: `ruby_lsp` (`ruby-lsp`), `rubocop` (`bundle exec rubocop --lsp`) and `zls` are excluded from Mason via `mason_ignored_servers` and run from PATH, which direnv fills from the project's flake. Neovim must be started inside the project for them to be found. Keep this pattern for any server whose version must match the project.
 - `client_supports_method` wrapper exists to bridge the 0.10/0.11 API difference; reuse it when gating on LSP methods.
 
 ## Formatting and linting

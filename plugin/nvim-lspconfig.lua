@@ -162,13 +162,14 @@ local capabilities = require("blink.cmp").get_lsp_capabilities()
 -- spawns, and the Ruby binstubs it ships start with `#!/usr/bin/ruby`. Ruby
 -- LSP re-launches itself through `bundle exec ruby-lsp`, and Bundler resolves
 -- that name from the PATH, so the Mason copy wins and the server restarts
--- under the system Ruby while still pointing at the mise Ruby's gems. The
+-- under the system Ruby while still pointing at the project Ruby's gems. The
 -- versions do not match, so every gem with a native extension looks broken and
 -- the server dies before it can start. Keeping these tools out of Mason lets
--- the mise-managed binaries be found instead.
+-- the project's own binaries be found instead.
 --
--- zls is installed by zvm alongside zig, because zls must match the zig
--- version exactly and Mason's copy would drift out of sync.
+-- All three come from the project's Nix dev shell (loaded by direnv), so Neovim
+-- must be started inside the project for them to be on PATH. zls in particular
+-- must match the project's zig version exactly.
 local mason_ignored_servers = {
 	ruby_lsp = true,
 	rubocop = true,
@@ -177,12 +178,11 @@ local mason_ignored_servers = {
 
 local servers = {
 	ruby_lsp = {
-		-- Use the mise-managed Ruby (matches project .ruby-version) instead of Mason's wrapper,
-		-- which is hardcoded to ~/.rubies/ruby-3.4.6
-		cmd = { "mise", "exec", "--", "ruby-lsp" },
+		-- From the project's dev shell (Ruby matches .ruby-version), not Mason.
+		cmd = { "ruby-lsp" },
 	},
 	rubocop = {
-		cmd = { "mise", "exec", "--", "bundle", "exec", "rubocop", "--lsp" },
+		cmd = { "bundle", "exec", "rubocop", "--lsp" },
 	},
 	zls = {},
 	lua_ls = {
