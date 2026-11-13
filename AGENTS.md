@@ -17,14 +17,15 @@ Personal Neovim configuration (Kickstart-derived, single-user). Not an app: ther
 
 ## LSP / tooling (plugin/nvim-lspconfig.lua)
 
-- Servers are declared in the `servers` table, then installed via `mason-tool-installer` and configured via the **new mason-lspconfig v2 API**: `vim.lsp.config(server_name, cfg)` per server plus `mason-lspconfig.setup { automatic_enable = true }`. Do not use the old `handlers`/`setup_handlers` pattern.
+- **No Mason.** Nothing is installed from inside Neovim; every server and tool runs from PATH. Servers are declared in the `servers` table, configured with `vim.lsp.config(server_name, cfg)` and started with `vim.lsp.enable(vim.tbl_keys(servers))`. Do not reintroduce Mason or the old `handlers`/`setup_handlers` pattern.
+- **Global tools come from Nix**: `lua-language-server`, `stylua`, `ripgrep`, `fd` and `tree-sitter` are in `programs.neovim.extraPackages` in `~/nix-config/home/neovim.nix` (on Neovim's PATH only). Adding a global server or formatter means adding it there and rebuilding, then adding it to `servers` (or conform/nvim-lint) here.
+- **Project-versioned tools come from the project's Nix dev shell**: `ruby_lsp` (`ruby-lsp`), `rubocop` (`bundle exec rubocop --lsp`) and `zls` must match the project's Ruby/Gemfile/zig, so they come from the project's flake via direnv. Neovim must be started inside the project for them to be found.
 - Capabilities come from `blink.cmp` and are force-merged into every server config.
-- **Project-versioned tooling comes from the project's Nix dev shell, not Mason**: `ruby_lsp` (`ruby-lsp`), `rubocop` (`bundle exec rubocop --lsp`) and `zls` are excluded from Mason via `mason_ignored_servers` and run from PATH, which direnv fills from the project's flake. Neovim must be started inside the project for them to be found. Keep this pattern for any server whose version must match the project.
 - `client_supports_method` wrapper exists to bridge the 0.10/0.11 API difference; reuse it when gating on LSP methods.
 
 ## Formatting and linting
 
-- Formatting: `conform.nvim` with `format_on_save` (500ms timeout, `lsp_format = 'fallback'`); Lua uses `stylua` (installed by Mason). C/C++ are excluded from format-on-save. Manual format: `<leader>f`.
+- Formatting: `conform.nvim` with `format_on_save` (500ms timeout, `lsp_format = 'fallback'`); Lua uses `stylua` (from Nix, see above). C/C++ are excluded from format-on-save. Manual format: `<leader>f`.
 - Linting: `nvim-lint`, runs on `BufEnter`/`BufWritePost`/`InsertLeave`, guarded by `vim.bo.modifiable`.
 - Editing Lua here: stylua formats with tabs (indent_type = "Tabs") and prefers double quotes (quote_style = "AutoPreferDouble"). Files were bulk-reformatted to this style; keep new edits consistent with it.
 
@@ -53,4 +54,4 @@ Open Neovim with a specific config file to smoke-test, e.g.:
 nvim --headless '+lua print("ok")' +qa   # config loads without errors
 ```
 
-Check `:checkhealth`, `:Mason` for tool status, and `:LspInfo` (or `:checkhealth vim.lsp`) for server attachment. There is no automated test suite; a clean headless startup plus the affected feature working is the bar.
+Check `:checkhealth` and `:LspInfo` (or `:checkhealth vim.lsp`) for server attachment. There is no automated test suite; a clean headless startup plus the affected feature working is the bar.

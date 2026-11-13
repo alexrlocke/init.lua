@@ -1,14 +1,10 @@
 vim.pack.add({
 	"https://github.com/neovim/nvim-lspconfig",
-	"https://github.com/mason-org/mason.nvim",
-	"https://github.com/mason-org/mason-lspconfig.nvim",
-	"https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim",
 	"https://github.com/j-hui/fidget.nvim",
 	"https://github.com/saghen/blink.cmp",
 })
 
 require("fidget").setup({})
-require("mason").setup({})
 
 --  This function gets run when an LSP attaches to a particular buffer.
 --    That is to say, every time a new file is opened that is associated with
@@ -156,29 +152,16 @@ vim.diagnostic.config({
 --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
--- Servers that must NOT be installed by Mason.
---
--- Mason prepends its own bin directory to the PATH of every LSP process it
--- spawns, and the Ruby binstubs it ships start with `#!/usr/bin/ruby`. Ruby
--- LSP re-launches itself through `bundle exec ruby-lsp`, and Bundler resolves
--- that name from the PATH, so the Mason copy wins and the server restarts
--- under the system Ruby while still pointing at the project Ruby's gems. The
--- versions do not match, so every gem with a native extension looks broken and
--- the server dies before it can start. Keeping these tools out of Mason lets
--- the project's own binaries be found instead.
---
--- All three come from the project's Nix dev shell (loaded by direnv), so Neovim
--- must be started inside the project for them to be on PATH. zls in particular
--- must match the project's zig version exactly.
-local mason_ignored_servers = {
-	ruby_lsp = true,
-	rubocop = true,
-	zls = true,
-}
-
+-- Every server here runs whatever binary is on PATH. Nothing is installed from
+-- inside Neovim:
+--   * lua_ls (and the stylua formatter) come from Nix, via extraPackages in
+--     nix-config's home/neovim.nix, so they're on Neovim's PATH everywhere.
+--   * ruby_lsp, rubocop and zls come from the project's Nix dev shell (loaded
+--     by direnv), so Neovim must be started inside the project. Their versions
+--     must match the project's Ruby/Gemfile and zig exactly.
+-- A server whose binary isn't on PATH just doesn't start.
 local servers = {
 	ruby_lsp = {
-		-- From the project's dev shell (Ruby matches .ruby-version), not Mason.
 		cmd = { "ruby-lsp" },
 	},
 	rubocop = {
@@ -204,39 +187,11 @@ local servers = {
 	},
 }
 
--- Ensure the servers and tools above are installed
---
--- To check the current status of installed tools and/or manually install
--- other tools, you can run
---    :Mason
---
--- You can press `g?` for help in this menu.
---
--- `mason` had to be setup earlier: to configure its options see the
--- `dependencies` table for `nvim-lspconfig` above.
---
--- You can add other tools here that you want Mason to install
--- for you, so that they are available from within Neovim.
-local ensure_installed = vim.tbl_filter(function(server_name)
-	return not mason_ignored_servers[server_name]
-end, vim.tbl_keys(servers or {}))
-vim.list_extend(ensure_installed, {
-	"stylua", -- Used to format Lua code
-})
-require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
--- mason-lspconfig v2 uses vim.lsp.config/vim.lsp.enable instead of handlers.
--- Per-server overrides (cmd, settings, capabilities) go through vim.lsp.config.
+-- Per-server overrides (cmd, settings, capabilities) merge onto nvim-lspconfig's
+-- defaults through vim.lsp.config; vim.lsp.enable then starts them per filetype.
 for server_name, server in pairs(servers) do
 	server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 	vim.lsp.config(server_name, server)
 end
 
-require("mason-lspconfig").setup({
-	ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-	automatic_enable = true,
-})
-
--- Mason only auto-enables the servers it installed itself, so the ones we
--- deliberately keep out of Mason have to be turned on by hand.
-vim.lsp.enable(vim.tbl_keys(mason_ignored_servers))
+vim.lsp.enable(vim.tbl_keys(servers))
