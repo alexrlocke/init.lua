@@ -5,10 +5,9 @@ vim.pack.add({
 	{ src = "https://github.com/dracula/vim", name = "dracula" },
 })
 
--- neorex starts Neovim with `--listen $TMPDIR/neorex-<pid>.nvim.sock`.
--- Its colorscheme is on the runtime path already (added by nix-config's
--- home/neovim.nix, from the same package as the neorex binary).
-local in_neorex = vim.v.servername:match("/neorex%-%d+%.nvim%.sock$") ~= nil
+-- neorex sets this before init.lua runs, and adds its colorscheme to the
+-- runtime path itself.
+local in_neorex = vim.g.neorex == true
 
 local colorscheme_file = vim.fn.stdpath("data") .. "/colorscheme.txt"
 
