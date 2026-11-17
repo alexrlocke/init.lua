@@ -35,6 +35,9 @@ local exclude = {
 	"**/tmp/*",
 	"**/.gems/*",
 	"**/graphify-out/*",
+	"**/.direnv/*",
+	"**/.kamal/*",
+	"**/.ruby-lsp/*",
 }
 
 local grep_exclude = vim.list_extend(vim.deepcopy(exclude), {
