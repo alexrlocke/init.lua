@@ -34,6 +34,7 @@ local exclude = {
 	"**/zig-out/*",
 	"**/tmp/*",
 	"**/.gems/*",
+	"**/graphify-out/*",
 }
 
 local grep_exclude = vim.list_extend(vim.deepcopy(exclude), {
