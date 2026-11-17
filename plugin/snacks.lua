@@ -32,6 +32,8 @@ local exclude = {
 	"**/zig-pkg/*",
 	"**/.zig-cache/*",
 	"**/zig-out/*",
+	"**/tmp/*",
+	"**/.gems/*",
 }
 
 local grep_exclude = vim.list_extend(vim.deepcopy(exclude), {
@@ -43,7 +45,8 @@ local grep_exclude = vim.list_extend(vim.deepcopy(exclude), {
 -- Snacks centers each header line on its own, so pad every line to the same
 -- width (trailing spaces don't survive editors/formatters).
 local header = (function()
-	local lines = vim.split([[
+	local lines = vim.split(
+		[[
 ███▄▄▄▄      ▄████████  ▄██████▄   ▄█    █▄   ▄█    ▄▄▄▄███▄▄▄▄
 ███▀▀▀██▄   ███    ███ ███    ███ ███    ███ ███  ▄██▀▀▀███▀▀▀██▄
 ███   ███   ███    █▀  ███    ███ ███    ███ ███▌ ███   ███   ███
@@ -51,7 +54,9 @@ local header = (function()
 ███   ███ ▀▀███▀▀▀     ███    ███ ███    ███ ███▌ ███   ███   ███
 ███   ███   ███    █▄  ███    ███ ███    ███ ███  ███   ███   ███
 ███   ███   ███    ███ ███    ███ ███    ███ ███  ███   ███   ███
- ▀█   █▀    ██████████  ▀██████▀   ▀██████▀  █▀    ▀█   ███   █▀]], "\n")
+ ▀█   █▀    ██████████  ▀██████▀   ▀██████▀  █▀    ▀█   ███   █▀]],
+		"\n"
+	)
 	local width = 0
 	for _, line in ipairs(lines) do
 		width = math.max(width, vim.fn.strdisplaywidth(line))
