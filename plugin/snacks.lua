@@ -138,7 +138,14 @@ map("<leader>fb", Snacks.picker.buffers, "Buffers")
 map("<leader>fc", function()
 	Snacks.picker.files({ cwd = vim.fn.stdpath("config") })
 end, "Find Config File")
-map("<leader>sf", Snacks.picker.files, "Find Files")
+if vim.g.neorex then
+	-- in neorex, find files in Rex's command palette
+	map("<leader>sf", function()
+		require("neorex.pick").files()
+	end, "Find Files (Rex)")
+else
+	map("<leader>sf", Snacks.picker.files, "Find Files")
+end
 map("<leader>fg", Snacks.picker.git_files, "Find Git Files")
 map("<leader>fp", Snacks.picker.projects, "Projects")
 map("<leader>fr", Snacks.picker.recent, "Recent")
