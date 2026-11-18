@@ -5,10 +5,6 @@ vim.pack.add({
 	{ src = "https://github.com/dracula/vim", name = "dracula" },
 })
 
--- neorex sets this before init.lua runs, and adds its colorscheme to the
--- runtime path itself.
-local in_neorex = vim.g.neorex == true
-
 local colorscheme_file = vim.fn.stdpath("data") .. "/colorscheme.txt"
 
 -- Clear backgrounds so the terminal's transparency shows through, whatever the theme.
@@ -25,26 +21,20 @@ local function clear_bg()
 		"StatusLineNC",
 		"SnacksDashboardNormal",
 	}) do
-		-- neorex's statusline bar comes from Rex's palette, so keep it
-		if not (in_neorex and group:match("^StatusLine")) then
-			local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
-			vim.api.nvim_set_hl(0, group, vim.tbl_extend("force", hl, { bg = "none", ctermbg = "none" }))
-		end
+		local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+		vim.api.nvim_set_hl(0, group, vim.tbl_extend("force", hl, { bg = "none", ctermbg = "none" }))
 	end
 end
 
+-- neorex turns this off (after/plugin/neorex.lua)
 vim.api.nvim_create_autocmd("ColorScheme", {
 	group = vim.api.nvim_create_augroup("persist-colorscheme", { clear = true }),
 	callback = function()
 		clear_bg()
-		-- neorex only works inside neorex, so don't save it
-		if vim.g.colors_name == "neorex" then
-			return
-		end
 		vim.fn.writefile({ vim.g.colors_name }, colorscheme_file)
 		vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#e0def4" })
 	end,
 })
 
 local saved = vim.fn.filereadable(colorscheme_file) == 1 and vim.fn.readfile(colorscheme_file)[1]
-pcall(vim.cmd.colorscheme, in_neorex and "neorex" or saved or "tokyonight-moon")
+pcall(vim.cmd.colorscheme, saved or "tokyonight-moon")
